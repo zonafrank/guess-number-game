@@ -7,29 +7,32 @@ const secretNumberElem = document.querySelector(".number");
 const guessInput = document.querySelector(".guess");
 const checkGuessBtn = document.querySelector(".btn.check");
 const resetGameBtn = document.querySelector(".btn.again");
+const upperLimitElem = document.querySelector(".upper-limit");
 
-const maxNumber = 20;
-let secretNumber = Math.floor(Math.random() * maxNumber) + 1;
+const maxNumber = 100;
+let secretNumber = getRandom(maxNumber);
 let score = 20;
 let highScore = Number(highScoreElem.textContent);
 
-resetGameBtn.addEventListener("click", () => {
-  if (score > highScore) {
-    highScore = score;
-    highScoreElem.textContent = highScore;
-  }
+upperLimitElem.textContent = maxNumber;
 
-  score = 20;
-  scoreElem.textContent = score;
-  secretNumber = Math.floor(Math.random() * maxNumber) + 1;
-  document.querySelector("body").style.backgroundColor = "#222";
-  guessInput.value = "";
-  secretNumberElem.textContent = "?";
-  secretNumberElem.style.width = "15rem";
-  messageElem.textContent = "Start guessing...";
+resetGameBtn.addEventListener("click", resetGame);
+
+checkGuessBtn.addEventListener("click", computeResult);
+
+document.body.addEventListener("keyup", (e) => {
+  const keyPressed = e.key;
+  const targetElemClass = e.target.className;
+  if (keyPressed === "Enter" && targetElemClass === "guess") {
+    computeResult();
+  }
 });
 
-checkGuessBtn.addEventListener("click", () => {
+function getRandom(val) {
+  return Math.floor(Math.random() * val) + 1;
+}
+
+function computeResult() {
   const guess = parseInt(guessInput.value);
   if (score > 0) {
     if (guess) {
@@ -38,9 +41,11 @@ checkGuessBtn.addEventListener("click", () => {
         secretNumberElem.textContent = secretNumber;
         document.querySelector("body").style.backgroundColor = "#60b347";
         secretNumberElem.style.width = "30rem";
+        resetGameBtn.focus();
       } else {
         score--;
         scoreElem.textContent = score;
+
         if (score < 1) {
           messageElem.textContent = "You lost the game.";
         } else if (guess < secretNumber) {
@@ -48,9 +53,28 @@ checkGuessBtn.addEventListener("click", () => {
         } else {
           messageElem.textContent = "Too high...";
         }
+        guessInput.focus();
       }
+      guessInput.value = "";
     } else {
       console.log("Invalid input detected");
     }
   }
-});
+}
+
+function resetGame() {
+  if (score > highScore) {
+    highScore = score;
+    highScoreElem.textContent = highScore;
+  }
+
+  score = 20;
+  scoreElem.textContent = score;
+  secretNumber = getRandom(maxNumber);
+  document.querySelector("body").style.backgroundColor = "#222";
+  guessInput.value = "";
+  secretNumberElem.textContent = "?";
+  secretNumberElem.style.width = "15rem";
+  messageElem.textContent = "Start guessing...";
+  guessInput.focus();
+}
